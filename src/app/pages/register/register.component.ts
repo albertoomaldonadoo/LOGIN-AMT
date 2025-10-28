@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-register',
@@ -14,7 +15,8 @@ export class RegisterComponent {
   
   //, Validators.pattern('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[A-Za-z\\d]{8,}$')
   constructor(private formSvc:FormBuilder,
-    private auth:AuthService
+              private auth:AuthService,
+              private router: Router
   ){
     this.formLogin = this.formSvc.group({
       'nameUser':['',[Validators.required, Validators.minLength(2)]],
@@ -23,9 +25,28 @@ export class RegisterComponent {
     })
   }
   
-  onSubmit(){
-    console.log(this.formLogin.value);
-    this.auth.login(this.formLogin.value as any);
+  onSubmit() {
+    if (this.formLogin.valid) {
+      const { nameUser, email, password } = this.formLogin.value;
+
+      // Obtener usuarios existentes de localStorage
+      let users: any[] = JSON.parse(localStorage.getItem('USERS') || '[]');
+
+      // Comprobar si el email ya existe
+      if (users.find(u => u.email === email)) {
+        alert('El usuario ya está registrado con ese email');
+        return;
+      }
+
+      // Guardar nuevo usuario
+      users.push({ nameUser, email, password });
+      localStorage.setItem('USERS', JSON.stringify(users));
+
+      alert('Usuario registrado correctamente');
+
+      // Redirigir al login
+      this.router.navigate(['/login']);
+    }
   }
 
   getError(control:string){

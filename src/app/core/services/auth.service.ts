@@ -8,7 +8,7 @@ export class AuthService {
 
   readonly _user:any=(
     {
-      name: "Alberto",
+      nameUser: "Alberto",
       suername: "Maldonado Triana",
       email: "alberto@gmail.com"
     }
@@ -23,11 +23,18 @@ export class AuthService {
     }
   }
 
-  login(credentials:Credentials){
-
-    localStorage.setItem('AUTHENTICATION', JSON.stringify(credentials));
-    this.user.set (this._user)
-    
+  login(credentials: Credentials) {
+    const users: any[] = JSON.parse(localStorage.getItem('USERS') || '[]');
+    const user = users.find(u => u.email === credentials.email && u.password === credentials.password);
+  
+    if (user) {
+      localStorage.setItem('AUTHENTICATION', JSON.stringify(user));
+      this.user.set(user);
+      return true;
+    } else {
+      alert('Email o contraseña incorrectos');
+      return false;
+    }
   }
 
   logout(){
