@@ -24,8 +24,8 @@ export class AuthService {
   }
 
   login(credentials: Credentials) {
-    const users: any[] = JSON.parse(localStorage.getItem('USERS') || '[]');
-    const user = users.find(u => u.email === credentials.email && u.password === credentials.password);
+    const users: any[] = JSON.parse(localStorage.getItem('USERS') !);
+    const user = users.find(u => u.name === credentials.name && u.email === credentials.email && u.password === credentials.password);
   
     if (user) {
       localStorage.setItem('AUTHENTICATION', JSON.stringify(user));

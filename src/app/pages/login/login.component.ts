@@ -33,6 +33,10 @@ export class LoginComponent {
     }
   }
 
+  onSubmitResg(){
+    this.router.navigate(['/register']);
+  }
+
   getError(control:string){
     switch(control){
       case 'email':
