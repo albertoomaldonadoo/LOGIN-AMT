@@ -1,43 +1,45 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject, signal, effect, untracked } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { AuthService } from '../../core/services/auth.service';
-import { Router } from '@angular/router';
+import { LocalStorageAuthService } from '../../core/services/local-storate-auth.service';
+import { RouterLink, Router, ActivatedRoute } from '@angular/router';
+import { StrapiAuthService } from '../../core/services/strapi-auth.service';
+import { User } from '../../core/models/user';
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule, RouterLink],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })
 export class LoginComponent {
-  
+
   formLogin;
-  //, Validators.pattern('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[A-Za-z\\d]{8,}$')
+  private router:Router = inject(Router);
+  readonly navigateTo:string;
+
   constructor(private formSvc:FormBuilder,
-              private auth:AuthService,
-              private router: Router
+    private auth:StrapiAuthService
   ){
     this.formLogin = this.formSvc.group({
-      'email':['',[Validators.required, Validators.email]],
-      'password':['',[Validators.required]]
-    })
-  }
-
-  onSubmit() {
-    if (this.formLogin.valid) {
-      const success = this.auth.login(this.formLogin.value as any);
-      if (success) {
-        this.router.navigate(['/dashboard']);
+      'email':['', [Validators.required, Validators.email]],
+      'password':['', [Validators.required]],
+    });
+    this.navigateTo = history.state?.['navigateTo'] || '/dashboard';
+    effect(() => {
+      const user = this.auth.user();
+      if (user) {
+        this.router.navigate([this.navigateTo]);
       }
-    }
+    });
   }
 
-  onSubmitResg(){
-    this.router.navigate(['/register']);
+  onSubmit(){
+    this.auth.login(this.formLogin.value as any);
   }
 
   getError(control:string){
+       
     switch(control){
       case 'email':
         if(this.formLogin.controls.email.errors!=null && 
@@ -57,4 +59,5 @@ export class LoginComponent {
     }
     return "";
   }
+
 }

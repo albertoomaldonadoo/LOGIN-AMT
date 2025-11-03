@@ -1,5 +1,15 @@
+export interface LoginResponse{
+    
+}
+export interface RegisterInfo{
+    name:string,
+    surname:string,
+    email:string,
+    password:string,
+    confirmPassword:string
+}
+
 export interface Credentials{
-    name:String,
-    email:String,
-    password:String
+    email:string;
+    password:string;
 }
